@@ -13,11 +13,11 @@ function convert(lat, lon){
     return {x:x,y:y};
 }
 
-const testFolder = './csv/';
+const input = process.argv[2];
 
 const files = [];
 let filedIndex = 0;
-fs.readdirSync(testFolder).forEach((file, index) => {
+fs.readdirSync(input).forEach((file, index) => {
   	files.push(file);
 });
 

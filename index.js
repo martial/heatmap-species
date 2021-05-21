@@ -1,7 +1,7 @@
 const fs = require("fs");
 const heatmap = require("@luxedo/heatmap");
 const csv = require('csv-parser')
-
+const path = require('path')
 
 const width = 1000 ;
 const height = 446;
@@ -16,24 +16,38 @@ function convert(lat, lon){
 const input = process.argv[2];
 
 const files = [];
-let filedIndex = 0;
-fs.readdirSync(input).forEach((file, index) => {
-  	files.push(file);
-});
+let filedIndex = 2;
 
-createImage(files[0], filedIndex)
+fs.readdir(input, function (err, f) {
+  if (!err) {
+    const csvFiles = f.filter(el => path.extname(el) === '.csv');
+    csvFiles.forEach((file) => {
+      if (typeof file !== 'undefined' ) {
+        files.push(file);
+      }
+    })
+    const csvUrl = files[filedIndex]
+    createImage(csvUrl)
 
-function createImage(url, index) {
+  }
+
+})
+
+function createImage(url) {
+
 	points = [];
-	let nIndex = 0;
-	fs.createReadStream("./CSV/"+url)
+  let nIndex = 0;
+
+	fs.createReadStream("./"+input+"/"+url)
 	  .pipe(csv())
 	  .on('data', (data) => {
 
-	  	const dataParsed = Object.values(data)
+      const dataParsed = Object.values(data);
+
 	  	if(dataParsed.length === 6 ) {
 
-  		if(nIndex %10 === 0 ) {
+        if (nIndex % 10 === 0) {
+					
 		  	const pnt = convert(parseFloat(dataParsed[2]), parseFloat(dataParsed[3]))
 		  	points.push({
 				px: pnt.x,
@@ -50,14 +64,16 @@ function createImage(url, index) {
 		  steps: 30,
 		  values: ["#022B3A", "#1F7A8C", "#BFDBF7", "#E1E5F2", "1FFFFFF"],
 		  weights: [1, 2, 3, 4 ,5],
-		};
+    };
 
 		heatmap.drawHeatmap({points, width, height, colors} ).then((result) => {
-			const url = "output/output-"+index+".png"
-			fs.writeFileSync(url, result);
-			filedIndex++,
-			createImage(files[filedIndex], filedIndex)
-
+			const output = "output/output-"+filedIndex+".png"
+      fs.writeFileSync(output, result);
+      filedIndex++;
+      const csvUrl = files[filedIndex]
+      if (filedIndex < files.length - 1) {
+        createImage(csvUrl)
+      }
 		});
 
 	});

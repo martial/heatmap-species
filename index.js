@@ -28,9 +28,7 @@ fs.readdir(input, function (err, f) {
     })
     const csvUrl = files[filedIndex]
     createImage(csvUrl)
-
   }
-
 })
 
 function createImage(url) {
@@ -43,14 +41,12 @@ function createImage(url) {
 	  .on('data', (data) => {
 
       const dataParsed = Object.values(data);
-
 	  	if(dataParsed.length === 6 ) {
 
         if (nIndex % 10 === 0) {
-					
 		  	const pnt = convert(parseFloat(dataParsed[2]), parseFloat(dataParsed[3]))
 		  	points.push({
-				px: pnt.x,
+					px: pnt.x,
 			    py: pnt.y,
 			    value: parseFloat(dataParsed[5]),
 			    sigma: 50,
